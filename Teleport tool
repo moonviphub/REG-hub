@@ -1,0 +1,41 @@
+-- [[ SIEU SCRIPT TONG HOP BY PHAP SU ]]
+
+-- 1. ANTI-AFK (Chống treo máy để farm đồ)
+local VirtualUser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    VirtualUser:CaptureController()
+    VirtualUser:ClickButton2(Vector2.new(0,0))
+    print("Anti-AFK: Da kich hoat de tranh bi kick!")
+end)
+
+-- 2. INVISIBLE & IMMORTAL (Tàng hình 1P + Bất tử sau khi dịch chuyển)
+function ApplyGhostMode()
+    local char = game.Players.LocalPlayer.Character
+    if char then
+        -- Tàng hình (Transparency) và Bất tử (ForceField)
+        for _, part in pairs(char:GetDescendants()) do
+            if part:IsA("BasePart") then part.Transparency = 1 end
+            if part:IsA("Decal") then part.Transparency = 1 end -- Không tạo ảnh
+        end
+        local ff = Instance.new("ForceField", char)
+        print("Trạng thái Hư Thức: Bat dau 60s!")
+        
+        task.wait(60) -- Duy trì trong 1 phút
+        ff:Destroy()
+        -- Reset lại hiển thị ở đây
+    end
+end
+
+-- 3. UNIVERSAL AIMLOCK (Khóa mục tiêu cho mọi game)
+-- Logic: Tu dong quet HumanoidRootPart gan nhat va khoa Camera
+-- (Phần này cần tối ưu để tránh lag máy Redmagic)
+
+-- 4. ANTI-KICK & ANTI-BAN (Co ban)
+local mt = getrawmetatable(game)
+setreadonly(mt, false)
+local old = mt.__namecall
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    if method == "Kick" then return nil end -- Chan lenh Kick
+    return old(self, ...)
+end)
