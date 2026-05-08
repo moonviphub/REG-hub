@@ -1,0 +1,48 @@
+-- Chèn tiếp vào dưới đoạn code UI lúc nãy nhé ông giáo
+
+local Player = game.Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+local HumanoidRootPart = Character:WaitForChild("HumanoidRootPart")
+
+-- 1. Fly 1-200 (Chỉnh tốc độ linh hoạt)
+local FlySpeed = 100 -- Ông có thể thay đổi từ 1-200
+local Flying = false
+
+local function ToggleFly()
+    Flying = not Flying
+    local BodyVelocity = Instance.new("BodyVelocity")
+    BodyVelocity.Name = "NigreZ_Fly"
+    BodyVelocity.Velocity = Vector3.new(0, 0, 0)
+    BodyVelocity.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+    
+    if Flying then
+        BodyVelocity.Parent = HumanoidRootPart
+        -- Logic điều khiển hướng bay sẽ code thêm ở đây
+    else
+        if HumanoidRootPart:FindFirstChild("NigreZ_Fly") then
+            HumanoidRootPart.NigreZ_Fly:Destroy()
+        end
+    end
+end
+
+-- 2. Kill Aura "Súng Kíp" (Cực nhanh)
+local function KillAura()
+    spawn(function()
+        while wait(0.1) do -- Tốc độ súng kíp nổ liên hồi
+            for _, v in pairs(game.Workspace.Enemies:GetChildren()) do -- Tùy theo tên folder quái của game
+                local dist = (Player.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).magnitude
+                if dist < 20 then -- Khoảng cách Aura
+                    -- Gọi sự kiện tấn công của game ở đây
+                    game:GetService("ReplicatedStorage").Remotes.Attack:FireServer(v)
+                end
+            end
+        end
+    end)
+end
+
+-- 3. Xuyên tường & Jump vô hạn
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+end)
+
+print("NigreZ Hub: Fly, Kill Aura, NoClip đã sẵn sàng!")
