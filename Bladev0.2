@@ -1,0 +1,339 @@
+--// TRZ HUB - SIMPLE EDITION
+
+--// SERVICES
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
+
+local Player = Players.LocalPlayer
+
+--// REMOVE OLD GUI
+if CoreGui:FindFirstChild("TRZHub") then
+    CoreGui.TRZHub:Destroy()
+end
+
+--// GUI
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "TRZHub"
+ScreenGui.Parent = CoreGui
+
+--// MAIN FRAME
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Parent = ScreenGui
+
+MainFrame.Size = UDim2.new(0,260,0,170)
+MainFrame.Position = UDim2.new(0.5,-130,0.5,-85)
+
+MainFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+MainFrame.BorderSizePixel = 0
+
+Instance.new("UICorner",MainFrame).CornerRadius = UDim.new(0,10)
+
+--// TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+
+Title.Size = UDim2.new(1,0,0,35)
+Title.BackgroundTransparency = 1
+
+Title.Text = "TRZ"
+Title.TextColor3 = Color3.new(1,1,1)
+
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+--// STATUS
+local Status = Instance.new("TextLabel")
+Status.Parent = MainFrame
+
+Status.Size = UDim2.new(1,0,0,20)
+Status.Position = UDim2.new(0,0,0,30)
+
+Status.BackgroundTransparency = 1
+
+Status.Text = "Status : Idle"
+Status.TextColor3 = Color3.fromRGB(170,170,170)
+
+Status.Font = Enum.Font.Gotham
+Status.TextSize = 12
+
+--// AUTO PARRY TEXT
+local FarmText = Instance.new("TextLabel")
+FarmText.Parent = MainFrame
+
+FarmText.Position = UDim2.new(0,15,0,60)
+FarmText.Size = UDim2.new(0,150,0,30)
+
+FarmText.BackgroundTransparency = 1
+
+FarmText.Text = "Auto Parry AI"
+FarmText.TextColor3 = Color3.new(1,1,1)
+
+FarmText.Font = Enum.Font.Gotham
+FarmText.TextSize = 14
+
+--// TOGGLE
+local Toggle = Instance.new("TextButton")
+Toggle.Parent = MainFrame
+
+Toggle.Size = UDim2.new(0,40,0,20)
+Toggle.Position = UDim2.new(1,-60,0,65)
+
+Toggle.Text = ""
+Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+Instance.new("UICorner",Toggle).CornerRadius = UDim.new(1,0)
+
+--// CIRCLE
+local Circle = Instance.new("Frame")
+Circle.Parent = Toggle
+
+Circle.Size = UDim2.new(0,16,0,16)
+Circle.Position = UDim2.new(0,2,0.5,-8)
+
+Circle.BackgroundColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Circle).CornerRadius = UDim.new(1,0)
+
+--// MENU BUTTON
+local OpenButton = Instance.new("TextButton")
+OpenButton.Parent = ScreenGui
+
+OpenButton.Size = UDim2.new(0,50,0,50)
+OpenButton.Position = UDim2.new(0,15,0.5,-25)
+
+OpenButton.BackgroundColor3 = Color3.fromRGB(20,20,20)
+
+OpenButton.Text = "TRZ"
+OpenButton.TextColor3 = Color3.new(1,1,1)
+
+OpenButton.Font = Enum.Font.GothamBold
+OpenButton.TextSize = 14
+
+Instance.new("UICorner",OpenButton).CornerRadius = UDim.new(1,0)
+
+--// DRAG
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+
+    local delta = input.Position - dragStart
+
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Title.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+
+        end)
+    end
+end)
+
+Title.InputChanged:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if input == dragInput and dragging then
+        update(input)
+    end
+
+end)
+
+--// MENU OPEN CLOSE
+local MenuOpen = true
+
+OpenButton.MouseButton1Click:Connect(function()
+
+    MenuOpen = not MenuOpen
+
+    MainFrame.Visible = MenuOpen
+
+end)
+
+--// ANTI AFK
+Player.Idled:Connect(function()
+
+    VirtualUser:CaptureController()
+
+    VirtualUser:Button2Down(
+        Vector2.new(0,0),
+        workspace.CurrentCamera.CFrame
+    )
+
+    task.wait(1)
+
+    VirtualUser:Button2Up(
+        Vector2.new(0,0),
+        workspace.CurrentCamera.CFrame
+    )
+
+    Status.Text = "Status : Anti AFK"
+
+end)
+
+--// AUTO REJOIN
+game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(v)
+
+    if v.Name == "ErrorPrompt" then
+
+        Status.Text = "Status : Rejoining"
+
+        task.wait(2)
+
+        TeleportService:Teleport(game.PlaceId,Player)
+
+    end
+
+end)
+
+--// SETTINGS
+local AutoParry = false
+
+local MainRange = 25
+local BackupRange = 12
+
+local LastParry = 0
+local SpamDelay = 0.05
+
+--// FIND BALL
+local function getBall()
+
+    for _,v in pairs(workspace:GetChildren()) do
+
+        if v:IsA("Part") then
+
+            if string.find(v.Name:lower(),"ball") then
+                return v
+            end
+
+        end
+    end
+
+    return nil
+end
+
+--// PARRY
+local function parry()
+
+    if tick() - LastParry < SpamDelay then
+        return
+    end
+
+    LastParry = tick()
+
+    mouse1press()
+    task.wait()
+    mouse1release()
+
+    Status.Text = "Status : Parry"
+
+end
+
+--// AI LOOP
+game:GetService("RunService").RenderStepped:Connect(function()
+
+    if not AutoParry then
+        return
+    end
+
+    local Character = Player.Character
+
+    if not Character then
+        return
+    end
+
+    local HRP = Character:FindFirstChild("HumanoidRootPart")
+
+    if not HRP then
+        return
+    end
+
+    local Ball = getBall()
+
+    if not Ball then
+
+        Status.Text = "Status : No Ball"
+
+        return
+    end
+
+    local Distance = (Ball.Position - HRP.Position).Magnitude
+
+    local Velocity = Ball.AssemblyLinearVelocity.Magnitude
+
+    -- MAIN AI
+    if Distance <= MainRange then
+
+        local Predict = Velocity / 15
+
+        if Distance <= Predict + 10 then
+
+            parry()
+
+        end
+    end
+
+    -- BACKUP AI
+    if Distance <= BackupRange then
+
+        parry()
+
+    end
+
+end)
+
+--// TOGGLE
+Toggle.MouseButton1Click:Connect(function()
+
+    AutoParry = not AutoParry
+
+    if AutoParry then
+
+        Toggle.BackgroundColor3 = Color3.fromRGB(0,200,80)
+
+        Circle.Position = UDim2.new(1,-18,0.5,-8)
+
+        Status.Text = "Status : AI Enabled"
+
+    else
+
+        Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+        Circle.Position = UDim2.new(0,2,0.5,-8)
+
+        Status.Text = "Status : AI Disabled"
+
+    end
+
+end)
+
+print("TRZ Loaded")
