@@ -1,0 +1,228 @@
+--// TRZ AUTO FARM CHESTS UI
+
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+
+-- REMOVE OLD
+if CoreGui:FindFirstChild("TRZ_UI") then
+    CoreGui.TRZ_UI:Destroy()
+end
+
+-- GUI
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "TRZ_UI"
+Gui.Parent = CoreGui
+
+-- OPEN LOGO
+local Open = Instance.new("TextButton")
+Open.Parent = Gui
+
+Open.Size = UDim2.new(0,65,0,65)
+Open.Position = UDim2.new(0,20,0.5,-32)
+
+Open.BackgroundColor3 = Color3.fromRGB(10,10,15)
+
+Open.Text = "TZ"
+Open.TextColor3 = Color3.new(1,1,1)
+
+Open.Font = Enum.Font.GothamBlack
+Open.TextSize = 22
+
+Instance.new("UICorner",Open).CornerRadius = UDim.new(1,0)
+
+-- LOGO GRADIENT
+local LogoGradient = Instance.new("UIGradient")
+LogoGradient.Parent = Open
+
+LogoGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(255,40,40)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(0,90,255)
+    )
+}
+
+LogoGradient.Rotation = 45
+
+-- MAIN
+local Main = Instance.new("Frame")
+Main.Parent = Gui
+
+Main.Size = UDim2.new(1,0,1,0)
+
+Main.BackgroundColor3 = Color3.fromRGB(10,10,15)
+Main.BackgroundTransparency = 0.25
+
+-- MAIN GRADIENT
+local Gradient = Instance.new("UIGradient")
+Gradient.Parent = Main
+
+Gradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(255,40,40)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(0,90,255)
+    )
+}
+
+Gradient.Rotation = 35
+
+-- CENTER FRAME
+local Center = Instance.new("Frame")
+Center.Parent = Main
+
+Center.Size = UDim2.new(0,650,0,320)
+Center.Position = UDim2.new(0.5,-325,0.5,-160)
+
+Center.BackgroundColor3 = Color3.fromRGB(15,15,20)
+Center.BackgroundTransparency = 0.15
+
+Instance.new("UICorner",Center).CornerRadius = UDim.new(0,18)
+
+-- STROKE
+local Stroke = Instance.new("UIStroke")
+Stroke.Parent = Center
+
+Stroke.Thickness = 2
+
+Stroke.Color = Color3.fromRGB(255,255,255)
+
+-- TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = Center
+
+Title.Size = UDim2.new(1,0,0,80)
+
+Title.BackgroundTransparency = 1
+
+Title.Text = "TRZ AUTO FARM CHESTS"
+
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 36
+
+Title.TextColor3 = Color3.new(1,1,1)
+
+-- TITLE GRADIENT
+local TitleGradient = Instance.new("UIGradient")
+TitleGradient.Parent = Title
+
+TitleGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(255,40,40)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(0,90,255)
+    )
+}
+
+-- STATUS
+local Status = Instance.new("TextLabel")
+Status.Parent = Center
+
+Status.Size = UDim2.new(1,0,0,35)
+Status.Position = UDim2.new(0,0,0,75)
+
+Status.BackgroundTransparency = 1
+
+Status.Text = "STATUS : IDLE"
+
+Status.Font = Enum.Font.GothamBold
+Status.TextSize = 20
+
+Status.TextColor3 = Color3.fromRGB(220,220,220)
+
+-- LOGS FRAME
+local Logs = Instance.new("Frame")
+Logs.Parent = Center
+
+Logs.Size = UDim2.new(0,580,0,170)
+Logs.Position = UDim2.new(0.5,-290,0,120)
+
+Logs.BackgroundColor3 = Color3.fromRGB(8,8,12)
+Logs.BackgroundTransparency = 0.2
+
+Instance.new("UICorner",Logs).CornerRadius = UDim.new(0,14)
+
+-- LOG STROKE
+local LogStroke = Instance.new("UIStroke")
+LogStroke.Parent = Logs
+
+LogStroke.Color = Color3.fromRGB(255,255,255)
+LogStroke.Transparency = 0.4
+
+-- LOG TEXT
+local Info = Instance.new("TextLabel")
+Info.Parent = Logs
+
+Info.Size = UDim2.new(1,-20,1,-20)
+Info.Position = UDim2.new(0,10,0,10)
+
+Info.BackgroundTransparency = 1
+
+Info.TextXAlignment = Enum.TextXAlignment.Left
+Info.TextYAlignment = Enum.TextYAlignment.Top
+
+Info.Font = Enum.Font.Code
+Info.TextSize = 18
+
+Info.TextColor3 = Color3.new(1,1,1)
+
+Info.Text = [[
+
+> AUTO FARM CHESTS LOADED
+
+> STATUS : WAITING
+
+> TZ LOGO ACTIVE
+
+]]
+
+-- TOGGLE
+local Visible = true
+
+Open.MouseButton1Click:Connect(function()
+
+    Visible = not Visible
+
+    Main.Visible = Visible
+
+end)
+
+-- SIMPLE ANIMATION
+task.spawn(function()
+
+    while task.wait() do
+
+        TweenService:Create(
+            Stroke,
+            TweenInfo.new(1),
+            {
+                Transparency = 0.2
+            }
+        ):Play()
+
+        task.wait(1)
+
+        TweenService:Create(
+            Stroke,
+            TweenInfo.new(1),
+            {
+                Transparency = 0.5
+            }
+        ):Play()
+
+    end
+end)
+
+print("TRZ UI LOADED")
