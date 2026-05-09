@@ -1,0 +1,346 @@
+--// TRZ MISS HUB
+
+--// SERVICES
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local UIS = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local StarterGui = game:GetService("StarterGui")
+
+local Player = Players.LocalPlayer
+
+--// REMOVE OLD
+if CoreGui:FindFirstChild("TRZMissHub") then
+    CoreGui.TRZMissHub:Destroy()
+end
+
+--// GUI
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "TRZMissHub"
+Gui.Parent = CoreGui
+
+--// MAIN
+local Main = Instance.new("Frame")
+Main.Parent = Gui
+
+Main.Size = UDim2.new(0,320,0,330)
+Main.Position = UDim2.new(0.5,-160,0.5,-165)
+
+Main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Main.BorderSizePixel = 0
+
+Instance.new("UICorner",Main).CornerRadius = UDim.new(0,12)
+
+--// TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+
+Title.Size = UDim2.new(1,0,0,40)
+Title.BackgroundTransparency = 1
+
+Title.Text = "TRZ MISS HUB"
+Title.TextColor3 = Color3.new(1,1,1)
+
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 22
+
+--// OPEN BUTTON
+local Open = Instance.new("TextButton")
+Open.Parent = Gui
+
+Open.Size = UDim2.new(0,60,0,60)
+Open.Position = UDim2.new(0,15,0.5,-30)
+
+Open.BackgroundColor3 = Color3.fromRGB(20,20,20)
+
+Open.Text = "TRZ"
+Open.TextColor3 = Color3.new(1,1,1)
+
+Open.Font = Enum.Font.GothamBold
+Open.TextSize = 16
+
+Instance.new("UICorner",Open).CornerRadius = UDim.new(1,0)
+
+--// DRAG
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Title.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+
+        end)
+    end
+end)
+
+Title.InputChanged:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if input == dragInput and dragging then
+        update(input)
+    end
+
+end)
+
+--// OPEN CLOSE
+local Visible = true
+
+Open.MouseButton1Click:Connect(function()
+
+    Visible = not Visible
+
+    Main.Visible = Visible
+
+end)
+
+--// TOGGLE MAKER
+local Y = 50
+
+local function createToggle(name,callback)
+
+    local Text = Instance.new("TextLabel")
+    Text.Parent = Main
+
+    Text.Position = UDim2.new(0,15,0,Y)
+    Text.Size = UDim2.new(0,180,0,30)
+
+    Text.BackgroundTransparency = 1
+
+    Text.Text = name
+    Text.TextColor3 = Color3.new(1,1,1)
+
+    Text.Font = Enum.Font.Gotham
+    Text.TextSize = 14
+    Text.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Toggle = Instance.new("TextButton")
+    Toggle.Parent = Main
+
+    Toggle.Size = UDim2.new(0,40,0,20)
+    Toggle.Position = UDim2.new(1,-60,0,Y+5)
+
+    Toggle.Text = ""
+    Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+    Instance.new("UICorner",Toggle).CornerRadius = UDim.new(1,0)
+
+    local Circle = Instance.new("Frame")
+    Circle.Parent = Toggle
+
+    Circle.Size = UDim2.new(0,16,0,16)
+    Circle.Position = UDim2.new(0,2,0.5,-8)
+
+    Circle.BackgroundColor3 = Color3.new(1,1,1)
+
+    Instance.new("UICorner",Circle).CornerRadius = UDim.new(1,0)
+
+    local Enabled = false
+
+    Toggle.MouseButton1Click:Connect(function()
+
+        Enabled = not Enabled
+
+        if Enabled then
+
+            Toggle.BackgroundColor3 = Color3.fromRGB(0,200,80)
+
+            Circle.Position = UDim2.new(1,-18,0.5,-8)
+
+        else
+
+            Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+            Circle.Position = UDim2.new(0,2,0.5,-8)
+
+        end
+
+        callback(Enabled)
+
+    end)
+
+    Y = Y + 40
+
+end
+
+--// FLOAT
+createToggle("Float",function(state)
+
+    if state then
+
+        task.spawn(function()
+
+            while state do
+
+                local char = Player.Character
+
+                if char and char:FindFirstChild("HumanoidRootPart") then
+
+                    char.HumanoidRootPart.Velocity =
+                        Vector3.new(0,20,0)
+
+                end
+
+                task.wait()
+
+            end
+
+        end)
+    end
+end)
+
+--// SPIN
+createToggle("Spin",function(state)
+
+    if state then
+
+        task.spawn(function()
+
+            while state do
+
+                local char = Player.Character
+
+                if char and char:FindFirstChild("HumanoidRootPart") then
+
+                    char.HumanoidRootPart.CFrame *=
+                        CFrame.Angles(0,math.rad(10),0)
+
+                end
+
+                RunService.RenderStepped:Wait()
+
+            end
+
+        end)
+    end
+end)
+
+--// RGB
+createToggle("RGB Character",function(state)
+
+    if state then
+
+        task.spawn(function()
+
+            while state do
+
+                local char = Player.Character
+
+                if char then
+
+                    for _,v in pairs(char:GetDescendants()) do
+
+                        if v:IsA("BasePart") then
+
+                            v.Color = Color3.fromHSV(
+                                tick()%5/5,
+                                1,
+                                1
+                            )
+
+                        end
+                    end
+                end
+
+                task.wait()
+
+            end
+
+        end)
+    end
+end)
+
+--// INFINITE JUMP
+createToggle("Infinite Jump",function(state)
+
+    if state then
+
+        UIS.JumpRequest:Connect(function()
+
+            if state then
+
+                local char = Player.Character
+
+                if char and char:FindFirstChildOfClass("Humanoid") then
+
+                    char:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+
+                end
+            end
+        end)
+    end
+end)
+
+--// FUN NOTIFICATION
+createToggle("Funny Notify",function(state)
+
+    if state then
+
+        task.spawn(function()
+
+            while state do
+
+                pcall(function()
+
+                    StarterGui:SetCore("SendNotification",{
+                        Title = "TRZ MISS HUB",
+                        Text = "Skill issue 😭",
+                        Duration = 3
+                    })
+
+                end)
+
+                task.wait(8)
+
+            end
+
+        end)
+    end
+end)
+
+--// LOW GRAVITY
+createToggle("Low Gravity",function(state)
+
+    if state then
+
+        workspace.Gravity = 60
+
+    else
+
+        workspace.Gravity = 196.2
+
+    end
+
+end)
+
+print("TRZ MISS HUB LOADED")
