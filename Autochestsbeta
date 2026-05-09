@@ -1,0 +1,124 @@
+-- TRZ Hub UI - Minimalist Edition
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+-- Bỏ GUI cũ nếu đã chạy trước đó để không bị trùng
+if CoreGui:FindFirstChild("TRZHub") then
+    CoreGui.TRZHub:Destroy()
+end
+
+-- Tạo ScreenGui
+local TRZHub = Instance.new("ScreenGui")
+TRZHub.Name = "TRZHub"
+TRZHub.Parent = CoreGui
+
+-- Tạo Main Frame (Khung chính)
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0, 260, 0, 130) -- Kích thước nhỏ gọn
+MainFrame.Position = UDim2.new(0.5, -130, 0.5, -65)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 20) -- Màu xám đen
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = TRZHub
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 8)
+UICorner.Parent = MainFrame
+
+-- Tiêu đề
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1, 0, 0, 30)
+Title.BackgroundTransparency = 1
+Title.Text = "TRZ Hub - Auto Chest"
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+Title.TextSize = 16
+Title.Font = Enum.Font.GothamBold
+Title.Parent = MainFrame
+
+-- Text "Auto Farm Chest"
+local FarmText = Instance.new("TextLabel")
+FarmText.Size = UDim2.new(0, 150, 0, 30)
+FarmText.Position = UDim2.new(0, 15, 0, 45)
+FarmText.BackgroundTransparency = 1
+FarmText.Text = "Auto Farm Chest"
+FarmText.TextColor3 = Color3.fromRGB(200, 200, 200)
+FarmText.TextSize = 14
+FarmText.Font = Enum.Font.Gotham
+FarmText.TextXAlignment = Enum.TextXAlignment.Left
+FarmText.Parent = MainFrame
+
+-- Khung Nút Gạt (Toggle Background)
+local ToggleBg = Instance.new("TextButton")
+ToggleBg.Size = UDim2.new(0, 40, 0, 20)
+ToggleBg.Position = UDim2.new(1, -55, 0, 50)
+ToggleBg.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+ToggleBg.Text = ""
+ToggleBg.AutoButtonColor = false
+ToggleBg.Parent = MainFrame
+
+local ToggleCorner = Instance.new("UICorner")
+ToggleCorner.CornerRadius = UDim.new(1, 0)
+ToggleCorner.Parent = ToggleBg
+
+-- Hình tròn Nút Gạt (Toggle Circle)
+local ToggleCircle = Instance.new("Frame")
+ToggleCircle.Size = UDim2.new(0, 16, 0, 16)
+ToggleCircle.Position = UDim2.new(0, 2, 0.5, -8)
+ToggleCircle.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+ToggleCircle.Parent = ToggleBg
+
+local CircleCorner = Instance.new("UICorner")
+CircleCorner.CornerRadius = UDim.new(1, 0)
+CircleCorner.Parent = ToggleCircle
+
+-- Nút Hop Server
+local HopButton = Instance.new("TextButton")
+HopButton.Size = UDim2.new(0, 230, 0, 30)
+HopButton.Position = UDim2.new(0.5, -115, 0, 85)
+HopButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+HopButton.Text = "HOP SERVER"
+HopButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+HopButton.TextSize = 14
+HopButton.Font = Enum.Font.GothamBold
+HopButton.Parent = MainFrame
+
+local HopCorner = Instance.new("UICorner")
+HopCorner.CornerRadius = UDim.new(0, 6)
+HopCorner.Parent = HopButton
+
+-- Logic Nút Gạt (Animation mượt như Krnl)
+local isToggled = false
+local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quart, Enum.EasingDirection.Out)
+
+ToggleBg.MouseButton1Click:Connect(function()
+    isToggled = not isToggled
+    if isToggled then
+        -- Trạng thái BẬT
+        FarmText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        TweenService:Create(ToggleBg, tweenInfo, {BackgroundColor3 = Color3.fromRGB(0, 200, 80)}):Play()
+        TweenService:Create(ToggleCircle, tweenInfo, {Position = UDim2.new(1, -18, 0.5, -8)}):Play()
+        print("Đã BẬT Auto Farm Chest!")
+        -- Chèn function gọi code farm của ông vào đây
+    else
+        -- Trạng thái TẮT
+        FarmText.TextColor3 = Color3.fromRGB(200, 200, 200)
+        TweenService:Create(ToggleBg, tweenInfo, {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+        TweenService:Create(ToggleCircle, tweenInfo, {Position = UDim2.new(0, 2, 0.5, -8)}):Play()
+        print("Đã TẮT Auto Farm Chest!")
+        -- Chèn function dừng code farm vào đây
+    end
+end)
+
+-- Logic Nút Hop Server
+HopButton.MouseButton1Click:Connect(function()
+    print("Đang tìm server mới...")
+    -- Chèn code Hop Server của ông vào đây
+end)
+
+-- Code làm mượt nút bấm
+HopButton.MouseEnter:Connect(function()
+    TweenService:Create(HopButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(60, 60, 60)}):Play()
+end)
+HopButton.MouseLeave:Connect(function()
+    TweenService:Create(HopButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(40, 40, 40)}):Play()
+end)
