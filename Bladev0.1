@@ -1,0 +1,121 @@
+--// TRZ - SIMPLE BLADE BALL AI
+
+--// SERVICES
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+
+local Player = Players.LocalPlayer
+
+--// SETTINGS
+local AutoParry = true
+
+local MainRange = 25
+local BackupRange = 12
+
+local SpamDelay = 0.05
+local LastParry = 0
+
+--// FIND BALL
+local function getBall()
+
+    for _, v in pairs(workspace:GetChildren()) do
+
+        if v:IsA("Part") then
+
+            if v:FindFirstChild("zoomies") then
+                return v
+            end
+
+            if string.find(v.Name:lower(),"ball") then
+                return v
+            end
+        end
+    end
+
+    return nil
+end
+
+--// PARRY
+local function parry()
+
+    if tick() - LastParry < SpamDelay then
+        return
+    end
+
+    LastParry = tick()
+
+    VirtualInputManager:SendMouseButtonEvent(
+        0,
+        0,
+        0,
+        true,
+        game,
+        0
+    )
+
+    VirtualInputManager:SendMouseButtonEvent(
+        0,
+        0,
+        0,
+        false,
+        game,
+        0
+    )
+
+    print("TRZ Parry")
+
+end
+
+--// MAIN AI
+RunService.RenderStepped:Connect(function()
+
+    if not AutoParry then
+        return
+    end
+
+    local Character = Player.Character
+    if not Character then
+        return
+    end
+
+    local HRP = Character:FindFirstChild("HumanoidRootPart")
+    if not HRP then
+        return
+    end
+
+    local Ball = getBall()
+
+    if not Ball then
+        return
+    end
+
+    -- distance
+    local Distance = (Ball.Position - HRP.Position).Magnitude
+
+    -- velocity
+    local Velocity = Ball.AssemblyLinearVelocity.Magnitude
+
+    -- MAIN AI
+    if Distance <= MainRange then
+
+        -- tốc độ càng cao càng parry sớm
+        local Predict = Velocity / 15
+
+        if Distance <= Predict + 10 then
+
+            parry()
+
+        end
+    end
+
+    -- BACKUP AI
+    if Distance <= BackupRange then
+
+        parry()
+
+    end
+
+end)
+
+print("TRZ Blade Ball AI Loaded")
