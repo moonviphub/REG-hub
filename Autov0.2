@@ -1,0 +1,381 @@
+--// TRZ HUB - FIXED AUTO CHEST
+
+--// SERVICES
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+local UIS = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
+
+local Player = Players.LocalPlayer
+
+--// DELETE OLD GUI
+if CoreGui:FindFirstChild("TRZHub") then
+    CoreGui.TRZHub:Destroy()
+end
+
+--// GUI
+local TRZHub = Instance.new("ScreenGui")
+TRZHub.Name = "TRZHub"
+TRZHub.Parent = CoreGui
+
+--// MAIN FRAME
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0,260,0,145)
+MainFrame.Position = UDim2.new(0.5,-130,0.5,-70)
+MainFrame.BackgroundColor3 = Color3.fromRGB(20,20,20)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = TRZHub
+
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0,8)
+
+--// TITLE
+local Title = Instance.new("TextLabel")
+Title.Size = UDim2.new(1,0,0,30)
+Title.BackgroundTransparency = 1
+Title.Text = "TRZ Hub - Auto Chest"
+Title.TextColor3 = Color3.new(1,1,1)
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 16
+Title.Parent = MainFrame
+
+--// STATUS
+local Status = Instance.new("TextLabel")
+Status.Size = UDim2.new(1,0,0,20)
+Status.Position = UDim2.new(0,0,0,25)
+Status.BackgroundTransparency = 1
+Status.Text = "Status : Idle"
+Status.TextColor3 = Color3.fromRGB(170,170,170)
+Status.Font = Enum.Font.Gotham
+Status.TextSize = 12
+Status.Parent = MainFrame
+
+--// FARM TEXT
+local FarmText = Instance.new("TextLabel")
+FarmText.Size = UDim2.new(0,150,0,30)
+FarmText.Position = UDim2.new(0,15,0,50)
+FarmText.BackgroundTransparency = 1
+FarmText.Text = "Auto Farm Chest"
+FarmText.TextColor3 = Color3.fromRGB(200,200,200)
+FarmText.Font = Enum.Font.Gotham
+FarmText.TextSize = 14
+FarmText.TextXAlignment = Enum.TextXAlignment.Left
+FarmText.Parent = MainFrame
+
+--// TOGGLE BG
+local ToggleBg = Instance.new("TextButton")
+ToggleBg.Size = UDim2.new(0,40,0,20)
+ToggleBg.Position = UDim2.new(1,-55,0,55)
+ToggleBg.BackgroundColor3 = Color3.fromRGB(60,60,60)
+ToggleBg.Text = ""
+ToggleBg.AutoButtonColor = false
+ToggleBg.Parent = MainFrame
+
+Instance.new("UICorner", ToggleBg).CornerRadius = UDim.new(1,0)
+
+--// TOGGLE CIRCLE
+local ToggleCircle = Instance.new("Frame")
+ToggleCircle.Size = UDim2.new(0,16,0,16)
+ToggleCircle.Position = UDim2.new(0,2,0.5,-8)
+ToggleCircle.BackgroundColor3 = Color3.new(1,1,1)
+ToggleCircle.Parent = ToggleBg
+
+Instance.new("UICorner", ToggleCircle).CornerRadius = UDim.new(1,0)
+
+--// HOP BUTTON
+local HopButton = Instance.new("TextButton")
+HopButton.Size = UDim2.new(0,230,0,30)
+HopButton.Position = UDim2.new(0.5,-115,0,100)
+HopButton.BackgroundColor3 = Color3.fromRGB(40,40,40)
+HopButton.Text = "HOP SERVER"
+HopButton.TextColor3 = Color3.new(1,1,1)
+HopButton.Font = Enum.Font.GothamBold
+HopButton.TextSize = 14
+HopButton.Parent = MainFrame
+
+Instance.new("UICorner", HopButton).CornerRadius = UDim.new(0,6)
+
+--// DRAGGABLE
+
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+
+    local delta = input.Position - dragStart
+
+    MainFrame.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Title.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1
+    or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = MainFrame.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+
+        end)
+    end
+end)
+
+Title.InputChanged:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseMovement
+    or input.UserInputType == Enum.UserInputType.Touch then
+
+        dragInput = input
+
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if input == dragInput and dragging then
+        update(input)
+    end
+
+end)
+
+--// ANTI AFK
+
+Player.Idled:Connect(function()
+
+    VirtualUser:CaptureController()
+
+    VirtualUser:Button2Down(
+        Vector2.new(0,0),
+        workspace.CurrentCamera.CFrame
+    )
+
+    task.wait(1)
+
+    VirtualUser:Button2Up(
+        Vector2.new(0,0),
+        workspace.CurrentCamera.CFrame
+    )
+
+end)
+
+--// AUTO REJOIN
+
+game:GetService("CoreGui").RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(v)
+
+    if v.Name == "ErrorPrompt" then
+
+        Status.Text = "Status : Rejoining..."
+
+        task.wait(2)
+
+        TeleportService:Teleport(game.PlaceId, Player)
+
+    end
+
+end)
+
+--// FARM SYSTEM
+
+local farming = false
+local isToggled = false
+
+local tweenInfo = TweenInfo.new(
+    0.3,
+    Enum.EasingStyle.Quart,
+    Enum.EasingDirection.Out
+)
+
+-- FIND REAL CHESTS
+local function getChests()
+
+    local chests = {}
+
+    for _, v in pairs(workspace:GetDescendants()) do
+
+        if string.find(v.Name:lower(), "chest") then
+
+            if v:IsA("BasePart") then
+
+                table.insert(chests, v)
+
+            elseif v:IsA("Model") then
+
+                local part = v:FindFirstChildWhichIsA("BasePart")
+
+                if part then
+                    table.insert(chests, part)
+                end
+            end
+        end
+    end
+
+    return chests
+end
+
+-- TELEPORT
+local function teleportTo(part)
+
+    local character = Player.Character
+
+    if character and character:FindFirstChild("HumanoidRootPart") then
+
+        local hrp = character.HumanoidRootPart
+
+        for i = 1,3 do
+
+            hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+
+            task.wait(0.15)
+
+        end
+    end
+end
+
+-- AUTO FARM
+local function startFarm()
+
+    farming = true
+
+    task.spawn(function()
+
+        while farming do
+
+            local chests = getChests()
+
+            Status.Text = "Status : Found "..#chests.." Chests"
+
+            if #chests == 0 then
+
+                Status.Text = "Status : No Chest Found"
+
+                task.wait(3)
+
+            end
+
+            for _, chest in ipairs(chests) do
+
+                if not farming then
+                    break
+                end
+
+                Status.Text = "Status : Farming "..chest.Name
+
+                teleportTo(chest)
+
+                print("Teleporting To :", chest.Name)
+
+                task.wait(1.5)
+
+            end
+
+            Status.Text = "Status : Refreshing"
+
+            task.wait(2)
+
+        end
+    end)
+end
+
+-- STOP FARM
+local function stopFarm()
+
+    farming = false
+
+    Status.Text = "Status : Idle"
+
+end
+
+--// TOGGLE
+
+ToggleBg.MouseButton1Click:Connect(function()
+
+    isToggled = not isToggled
+
+    if isToggled then
+
+        FarmText.TextColor3 = Color3.new(1,1,1)
+
+        TweenService:Create(
+            ToggleBg,
+            tweenInfo,
+            {BackgroundColor3 = Color3.fromRGB(0,200,80)}
+        ):Play()
+
+        TweenService:Create(
+            ToggleCircle,
+            tweenInfo,
+            {Position = UDim2.new(1,-18,0.5,-8)}
+        ):Play()
+
+        Status.Text = "Status : Starting Farm"
+
+        startFarm()
+
+    else
+
+        FarmText.TextColor3 = Color3.fromRGB(200,200,200)
+
+        TweenService:Create(
+            ToggleBg,
+            tweenInfo,
+            {BackgroundColor3 = Color3.fromRGB(60,60,60)}
+        ):Play()
+
+        TweenService:Create(
+            ToggleCircle,
+            tweenInfo,
+            {Position = UDim2.new(0,2,0.5,-8)}
+        ):Play()
+
+        stopFarm()
+
+    end
+end)
+
+--// HOP SERVER
+
+HopButton.MouseButton1Click:Connect(function()
+
+    Status.Text = "Status : Hopping Server"
+
+    TeleportService:Teleport(game.PlaceId, Player)
+
+end)
+
+--// BUTTON EFFECT
+
+HopButton.MouseEnter:Connect(function()
+
+    TweenService:Create(
+        HopButton,
+        TweenInfo.new(0.2),
+        {BackgroundColor3 = Color3.fromRGB(60,60,60)}
+    ):Play()
+
+end)
+
+HopButton.MouseLeave:Connect(function()
+
+    TweenService:Create(
+        HopButton,
+        TweenInfo.new(0.2),
+        {BackgroundColor3 = Color3.fromRGB(40,40,40)}
+    ):Play()
+
+end)
+
+print("TRZ Hub Loaded")
