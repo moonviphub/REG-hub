@@ -1,0 +1,430 @@
+--// TRZ HUB - AUTO CHEST EDITION
+
+--// SERVICES
+local Players = game:GetService("Players")
+local CoreGui = game:GetService("CoreGui")
+local TweenService = game:GetService("TweenService")
+local UIS = game:GetService("UserInputService")
+local VirtualUser = game:GetService("VirtualUser")
+local TeleportService = game:GetService("TeleportService")
+local StarterGui = game:GetService("StarterGui")
+
+local Player = Players.LocalPlayer
+
+--// REMOVE OLD
+if CoreGui:FindFirstChild("TRZHub") then
+    CoreGui.TRZHub:Destroy()
+end
+
+--// GUI
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "TRZHub"
+Gui.Parent = CoreGui
+
+--// MAIN
+local Main = Instance.new("Frame")
+Main.Parent = Gui
+
+Main.Size = UDim2.new(0,280,0,240)
+Main.Position = UDim2.new(0.5,-140,0.5,-120)
+
+Main.BackgroundColor3 = Color3.fromRGB(20,20,20)
+Main.BorderSizePixel = 0
+
+Instance.new("UICorner",Main).CornerRadius = UDim.new(0,10)
+
+--// TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+
+Title.Size = UDim2.new(1,0,0,35)
+Title.BackgroundTransparency = 1
+
+Title.Text = "TRZ HUB"
+Title.TextColor3 = Color3.new(1,1,1)
+
+Title.Font = Enum.Font.GothamBold
+Title.TextSize = 18
+
+--// STATUS
+local Status = Instance.new("TextLabel")
+Status.Parent = Main
+
+Status.Size = UDim2.new(1,0,0,20)
+Status.Position = UDim2.new(0,0,0,30)
+
+Status.BackgroundTransparency = 1
+
+Status.Text = "Status : Idle"
+Status.TextColor3 = Color3.fromRGB(170,170,170)
+
+Status.Font = Enum.Font.Gotham
+Status.TextSize = 12
+
+--// OPEN BUTTON
+local Open = Instance.new("TextButton")
+Open.Parent = Gui
+
+Open.Size = UDim2.new(0,55,0,55)
+Open.Position = UDim2.new(0,15,0.5,-25)
+
+Open.BackgroundColor3 = Color3.fromRGB(20,20,20)
+
+Open.Text = "TRZ"
+Open.TextColor3 = Color3.new(1,1,1)
+
+Open.Font = Enum.Font.GothamBold
+Open.TextSize = 15
+
+Instance.new("UICorner",Open).CornerRadius = UDim.new(1,0)
+
+--// DRAG
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Title.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+
+        end)
+    end
+end)
+
+Title.InputChanged:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+        dragInput = input
+    end
+
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if input == dragInput and dragging then
+        update(input)
+    end
+
+end)
+
+--// OPEN CLOSE
+local Visible = true
+
+Open.MouseButton1Click:Connect(function()
+
+    Visible = not Visible
+
+    Main.Visible = Visible
+
+end)
+
+--// TOGGLE CREATOR
+local Y = 60
+
+local function createToggle(name,callback)
+
+    local Text = Instance.new("TextLabel")
+    Text.Parent = Main
+
+    Text.Position = UDim2.new(0,15,0,Y)
+    Text.Size = UDim2.new(0,180,0,30)
+
+    Text.BackgroundTransparency = 1
+
+    Text.Text = name
+    Text.TextColor3 = Color3.new(1,1,1)
+
+    Text.Font = Enum.Font.Gotham
+    Text.TextSize = 14
+    Text.TextXAlignment = Enum.TextXAlignment.Left
+
+    local Toggle = Instance.new("TextButton")
+    Toggle.Parent = Main
+
+    Toggle.Size = UDim2.new(0,40,0,20)
+    Toggle.Position = UDim2.new(1,-60,0,Y+5)
+
+    Toggle.Text = ""
+    Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+    Instance.new("UICorner",Toggle).CornerRadius = UDim.new(1,0)
+
+    local Circle = Instance.new("Frame")
+    Circle.Parent = Toggle
+
+    Circle.Size = UDim2.new(0,16,0,16)
+    Circle.Position = UDim2.new(0,2,0.5,-8)
+
+    Circle.BackgroundColor3 = Color3.new(1,1,1)
+
+    Instance.new("UICorner",Circle).CornerRadius = UDim.new(1,0)
+
+    local Enabled = false
+
+    Toggle.MouseButton1Click:Connect(function()
+
+        Enabled = not Enabled
+
+        if Enabled then
+
+            Toggle.BackgroundColor3 = Color3.fromRGB(0,200,80)
+
+            Circle.Position = UDim2.new(1,-18,0.5,-8)
+
+        else
+
+            Toggle.BackgroundColor3 = Color3.fromRGB(50,50,50)
+
+            Circle.Position = UDim2.new(0,2,0.5,-8)
+
+        end
+
+        callback(Enabled)
+
+    end)
+
+    Y = Y + 40
+
+end
+
+--// ANTI AFK
+Player.Idled:Connect(function()
+
+    VirtualUser:CaptureController()
+
+    VirtualUser:Button2Down(
+        Vector2.new(0,0),
+        workspace.CurrentCamera.CFrame
+    )
+
+    task.wait(1)
+
+    VirtualUser:Button2Up(
+        Vector2.new(0,0),
+        workspace.CurrentCamera.CFrame
+    )
+
+end)
+
+--// AUTO REJOIN
+game:GetService("CoreGui")
+.RobloxPromptGui.promptOverlay.ChildAdded:Connect(function(v)
+
+    if v.Name == "ErrorPrompt" then
+
+        Status.Text = "Status : Rejoining"
+
+        task.wait(2)
+
+        TeleportService:Teleport(game.PlaceId,Player)
+
+    end
+
+end)
+
+--// FIND CHESTS
+local function getChests()
+
+    local chests = {}
+
+    for _,v in pairs(workspace:GetDescendants()) do
+
+        if string.find(v.Name:lower(),"chest") then
+
+            if v:IsA("Model") then
+
+                local part = v:FindFirstChildWhichIsA("BasePart")
+
+                if part then
+                    table.insert(chests,part)
+                end
+
+            elseif v:IsA("BasePart") then
+
+                table.insert(chests,v)
+
+            end
+        end
+    end
+
+    return chests
+end
+
+--// TELEPORT
+local function teleportTo(part)
+
+    local char = Player.Character
+
+    if char and char:FindFirstChild("HumanoidRootPart") then
+
+        local hrp = char.HumanoidRootPart
+
+        for i = 1,5 do
+
+            hrp.CFrame = part.CFrame + Vector3.new(0,3,0)
+
+            hrp.AssemblyLinearVelocity = Vector3.zero
+
+            task.wait(0.1)
+
+        end
+    end
+end
+
+--// AUTO CHEST
+local Farming = false
+
+createToggle("Auto Chest",function(state)
+
+    Farming = state
+
+    if state then
+
+        task.spawn(function()
+
+            local Looted = {}
+
+            while Farming do
+
+                local chests = getChests()
+
+                Status.Text =
+                    "Status : "..#chests.." Chests"
+
+                for _,chest in pairs(chests) do
+
+                    if not Farming then
+                        break
+                    end
+
+                    if Looted[chest] then
+                        continue
+                    end
+
+                    if chest and chest.Parent then
+
+                        Status.Text =
+                            "Status : "..chest.Name
+
+                        teleportTo(chest)
+
+                        task.wait(1.2)
+
+                        if chest.Parent then
+
+                            Looted[chest] = true
+
+                        end
+
+                        -- LOAD ISLAND
+                        task.wait(0.5)
+
+                    end
+                end
+
+                task.wait(1)
+
+            end
+
+        end)
+    end
+end)
+
+--// BLACK BEARD NOTIFY
+createToggle("Black Beard Notify",function(state)
+
+    if state then
+
+        task.spawn(function()
+
+            while state do
+
+                for _,v in pairs(workspace:GetDescendants()) do
+
+                    if string.find(v.Name:lower(),"blackbeard") then
+
+                        pcall(function()
+
+                            StarterGui:SetCore(
+                                "SendNotification",
+                                {
+                                    Title = "TRZ HUB",
+                                    Text = "Black Beard Spawned!",
+                                    Duration = 5
+                                }
+                            )
+
+                        end)
+
+                    end
+                end
+
+                task.wait(10)
+
+            end
+
+        end)
+    end
+end)
+
+--// CHALICE NOTIFY
+createToggle("Chalice Notify",function(state)
+
+    if state then
+
+        task.spawn(function()
+
+            while state do
+
+                for _,v in pairs(game:GetDescendants()) do
+
+                    if string.find(v.Name:lower(),"chalice") then
+
+                        pcall(function()
+
+                            StarterGui:SetCore(
+                                "SendNotification",
+                                {
+                                    Title = "TRZ HUB",
+                                    Text = "Chalice Found!",
+                                    Duration = 5
+                                }
+                            )
+
+                        end)
+
+                    end
+                end
+
+                task.wait(10)
+
+            end
+
+        end)
+    end
+end)
+
+print("TRZ HUB LOADED")
