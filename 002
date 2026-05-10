@@ -1,0 +1,261 @@
+--// TRZ MUSIC HUB
+
+local CoreGui = game:GetService("CoreGui")
+local UIS = game:GetService("UserInputService")
+
+-- REMOVE OLD
+if CoreGui:FindFirstChild("TRZ_MUSIC") then
+    CoreGui.TRZ_MUSIC:Destroy()
+end
+
+-- GUI
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "TRZ_MUSIC"
+Gui.Parent = CoreGui
+
+-- SOUND
+local Sound = Instance.new("Sound")
+Sound.Parent = workspace
+
+-- PUT YOUR MUSIC ID HERE
+Sound.SoundId = "rbxassetid://1843529608"
+
+Sound.Volume = 2
+Sound.Looped = true
+
+-- OPEN BUTTON
+local Open = Instance.new("TextButton")
+Open.Parent = Gui
+
+Open.Size = UDim2.new(0,55,0,55)
+Open.Position = UDim2.new(0,20,0.5,-27)
+
+Open.Text = "TZ"
+
+Open.Font = Enum.Font.GothamBlack
+Open.TextSize = 20
+
+Open.BackgroundColor3 = Color3.fromRGB(15,15,20)
+Open.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Open).CornerRadius = UDim.new(1,0)
+
+-- LOGO EFFECT
+local LogoGradient = Instance.new("UIGradient")
+LogoGradient.Parent = Open
+
+LogoGradient.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(255,40,40)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(0,90,255)
+    )
+}
+
+-- MAIN
+local Main = Instance.new("Frame")
+Main.Parent = Gui
+
+Main.Size = UDim2.new(0,320,0,230)
+Main.Position = UDim2.new(0.5,-160,0.5,-115)
+
+Main.BackgroundColor3 = Color3.fromRGB(12,12,18)
+Main.BackgroundTransparency = 0.1
+
+Instance.new("UICorner",Main).CornerRadius = UDim.new(0,18)
+
+-- BORDER
+local Stroke = Instance.new("UIStroke")
+Stroke.Parent = Main
+
+Stroke.Color = Color3.fromRGB(255,255,255)
+Stroke.Thickness = 2
+
+-- TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = Main
+
+Title.Size = UDim2.new(1,0,0,55)
+
+Title.BackgroundTransparency = 1
+
+Title.Text = "TRZ MUSIC"
+
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 30
+
+Title.TextColor3 = Color3.new(1,1,1)
+
+-- TITLE EFFECT
+local TG = Instance.new("UIGradient")
+TG.Parent = Title
+
+TG.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(
+        0,
+        Color3.fromRGB(255,40,40)
+    ),
+
+    ColorSequenceKeypoint.new(
+        1,
+        Color3.fromRGB(0,90,255)
+    )
+}
+
+-- NOW PLAYING
+local Playing = Instance.new("TextLabel")
+Playing.Parent = Main
+
+Playing.Size = UDim2.new(1,0,0,35)
+Playing.Position = UDim2.new(0,0,0,50)
+
+Playing.BackgroundTransparency = 1
+
+Playing.Text = "NOW PLAYING"
+
+Playing.Font = Enum.Font.GothamBold
+Playing.TextSize = 18
+
+Playing.TextColor3 = Color3.new(1,1,1)
+
+-- PLAY BUTTON
+local Play = Instance.new("TextButton")
+Play.Parent = Main
+
+Play.Size = UDim2.new(0,120,0,45)
+Play.Position = UDim2.new(0,25,0,105)
+
+Play.Text = "▶ PLAY"
+
+Play.Font = Enum.Font.GothamBlack
+Play.TextSize = 20
+
+Play.BackgroundColor3 = Color3.fromRGB(20,20,30)
+Play.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Play).CornerRadius = UDim.new(0,14)
+
+-- PAUSE BUTTON
+local Pause = Instance.new("TextButton")
+Pause.Parent = Main
+
+Pause.Size = UDim2.new(0,120,0,45)
+Pause.Position = UDim2.new(0,175,0,105)
+
+Pause.Text = "⏸ PAUSE"
+
+Pause.Font = Enum.Font.GothamBlack
+Pause.TextSize = 20
+
+Pause.BackgroundColor3 = Color3.fromRGB(20,20,30)
+Pause.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Pause).CornerRadius = UDim.new(0,14)
+
+-- STATUS
+local Status = Instance.new("TextLabel")
+Status.Parent = Main
+
+Status.Size = UDim2.new(1,0,0,35)
+Status.Position = UDim2.new(0,0,0,175)
+
+Status.BackgroundTransparency = 1
+
+Status.Text = "STATUS : IDLE"
+
+Status.Font = Enum.Font.Code
+Status.TextSize = 18
+
+Status.TextColor3 = Color3.new(1,1,1)
+
+-- PLAY
+Play.MouseButton1Click:Connect(function()
+
+    Sound:Play()
+
+    Status.Text = "STATUS : PLAYING"
+
+end)
+
+-- PAUSE
+Pause.MouseButton1Click:Connect(function()
+
+    Sound:Pause()
+
+    Status.Text = "STATUS : PAUSED"
+
+end)
+
+-- TOGGLE MENU
+local Visible = true
+
+Open.MouseButton1Click:Connect(function()
+
+    Visible = not Visible
+
+    Main.Visible = Visible
+
+end)
+
+-- DRAGGABLE
+local dragging = false
+local dragInput
+local dragStart
+local startPos
+
+local function update(input)
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+
+end
+
+Main.InputBegan:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+
+        dragging = true
+
+        dragStart = input.Position
+
+        startPos = Main.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+
+        end)
+    end
+end)
+
+Main.InputChanged:Connect(function(input)
+
+    if input.UserInputType == Enum.UserInputType.MouseMovement then
+
+        dragInput = input
+
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if input == dragInput and dragging then
+
+        update(input)
+
+    end
+end)
+
+print("TRZ MUSIC LOADED")
