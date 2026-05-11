@@ -1,0 +1,47 @@
+-- NigreZ Hub: Hybrid Aura (Melee & Sword)
+
+_G.HybridAura = true
+
+local AttackRange = 30 -- Slightly larger attack range for better farming
+
+task.spawn(function()
+
+    while _G.HybridAura do
+        task.wait(0.01) -- Extremely fast attack speed
+
+        local Character =
+            game.Players.LocalPlayer.Character
+
+        local Enemy =
+            GetNearestEnemy() -- Uses the enemy finder function from previous code
+
+        if Enemy and Character then
+
+            -- 1. Automatically trigger melee/sword attacks
+            -- (Depends on each game's remotes, this is a common example)
+
+            local Tool =
+                Character:FindFirstChildOfClass("Tool")
+
+            if Tool then
+
+                -- Continuously attack while holding a weapon
+                Tool:Activate()
+
+                game:GetService("ReplicatedStorage")
+                    .Remotes
+                    .CombatEvent
+                    :FireServer("Attack")
+
+            end
+
+            -- 2. Bring Mob (Optional feature)
+            -- Enemy.HumanoidRootPart.CFrame =
+            -- Character.HumanoidRootPart.CFrame *
+            -- CFrame.new(0, 0, -5)
+
+        end
+    end
+end)
+
+print("Hybrid Aura (Melee + Sword) is ready!")
