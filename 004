@@ -1,0 +1,79 @@
+--// Banana Style UI (Demo UI Only)
+
+local ScreenGui = Instance.new("ScreenGui")
+local Main = Instance.new("Frame")
+local Sidebar = Instance.new("Frame")
+local Content = Instance.new("Frame")
+
+ScreenGui.Parent = game.CoreGui
+
+-- Main
+Main.Size = UDim2.new(0, 600, 0, 400)
+Main.Position = UDim2.new(0.5, -300, 0.5, -200)
+Main.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+Main.BorderSizePixel = 0
+Main.Parent = ScreenGui
+
+-- Sidebar
+Sidebar.Size = UDim2.new(0, 150, 1, 0)
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Sidebar.Parent = Main
+
+-- Content
+Content.Size = UDim2.new(1, -150, 1, 0)
+Content.Position = UDim2.new(0, 150, 0, 0)
+Content.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+Content.Parent = Main
+
+-- Title
+local Title = Instance.new("TextLabel")
+Title.Text = "Banana Cat Hub"
+Title.Size = UDim2.new(1, 0, 0, 40)
+Title.BackgroundColor3 = Color3.fromRGB(0,0,0)
+Title.TextColor3 = Color3.fromRGB(255, 200, 0)
+Title.Parent = Content
+
+-- Button Creator
+function createButton(name, y)
+    local btn = Instance.new("TextButton")
+    btn.Size = UDim2.new(1, 0, 0, 40)
+    btn.Position = UDim2.new(0, 0, 0, y)
+    btn.Text = name
+    btn.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    btn.TextColor3 = Color3.fromRGB(255,255,255)
+    btn.Parent = Sidebar
+end
+
+createButton("Farming", 50)
+createButton("Player", 100)
+createButton("Raid", 150)
+
+-- Checkbox
+function createToggle(text, y)
+    local toggle = Instance.new("TextButton")
+    toggle.Size = UDim2.new(0, 200, 0, 40)
+    toggle.Position = UDim2.new(0, 20, 0, y)
+    toggle.Text = text .. " [OFF]"
+    toggle.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    toggle.TextColor3 = Color3.fromRGB(255,255,255)
+
+    local state = false
+    toggle.MouseButton1Click:Connect(function()
+        state = not state
+        toggle.Text = text .. (state and " [ON]" or " [OFF]")
+    end)
+
+    toggle.Parent = Content
+end
+
+createToggle("Auto Farm", 60)
+createToggle("Auto Quest", 110)
+
+-- Slider fake
+local Slider = Instance.new("TextLabel")
+Slider.Size = UDim2.new(0, 200, 0, 40)
+Slider.Position = UDim2.new(0, 20, 0, 160)
+Slider.Text = "Distance: 300"
+Slider.BackgroundColor3 = Color3.fromRGB(40,40,40)
+Slider.TextColor3 = Color3.fromRGB(255,255,255)
+Slider.Parent = Content
