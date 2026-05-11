@@ -1,0 +1,392 @@
+--// TRZ HUB (Quest Helper Edition)
+
+-- SERVICES
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local CoreGui = game:GetService("CoreGui")
+
+local Player = Players.LocalPlayer
+local Character = Player.Character or Player.CharacterAdded:Wait()
+
+-- REMOVE OLD
+pcall(function()
+    CoreGui.TRZ_HUB:Destroy()
+end)
+
+-- GUI
+local Gui = Instance.new("ScreenGui")
+Gui.Name = "TRZ_HUB"
+Gui.Parent = CoreGui
+
+-- OPEN BUTTON
+local Open = Instance.new("TextButton")
+Open.Parent = Gui
+
+Open.Size = UDim2.new(0,55,0,55)
+Open.Position = UDim2.new(0,15,0.5,-25)
+
+Open.Text = "TZ"
+
+Open.Font = Enum.Font.GothamBlack
+Open.TextSize = 22
+
+Open.BackgroundColor3 = Color3.fromRGB(20,20,25)
+Open.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Open).CornerRadius = UDim.new(1,0)
+
+local OG = Instance.new("UIGradient")
+OG.Parent = Open
+
+OG.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0,Color3.fromRGB(255,40,40)),
+    ColorSequenceKeypoint.new(1,Color3.fromRGB(0,100,255))
+}
+
+-- MAIN
+local Main = Instance.new("Frame")
+Main.Parent = Gui
+
+Main.Size = UDim2.new(0,470,0,300)
+Main.Position = UDim2.new(0.5,-235,0.5,-150)
+
+Main.BackgroundColor3 = Color3.fromRGB(15,15,20)
+Main.BackgroundTransparency = 0.08
+
+Instance.new("UICorner",Main).CornerRadius = UDim.new(0,18)
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Parent = Main
+
+Stroke.Color = Color3.fromRGB(255,255,255)
+Stroke.Thickness = 1.5
+
+-- SIDEBAR
+local Side = Instance.new("Frame")
+Side.Parent = Main
+
+Side.Size = UDim2.new(0,120,1,0)
+
+Side.BackgroundColor3 = Color3.fromRGB(10,10,15)
+
+Instance.new("UICorner",Side).CornerRadius = UDim.new(0,18)
+
+-- TITLE
+local Title = Instance.new("TextLabel")
+Title.Parent = Side
+
+Title.Size = UDim2.new(1,0,0,55)
+
+Title.BackgroundTransparency = 1
+
+Title.Text = "TRZ HUB"
+
+Title.Font = Enum.Font.GothamBlack
+Title.TextSize = 25
+
+Title.TextColor3 = Color3.new(1,1,1)
+
+local TG = Instance.new("UIGradient")
+TG.Parent = Title
+
+TG.Color = ColorSequence.new{
+    ColorSequenceKeypoint.new(0,Color3.fromRGB(255,40,40)),
+    ColorSequenceKeypoint.new(1,Color3.fromRGB(0,100,255))
+}
+
+-- CONTENT
+local Content = Instance.new("Frame")
+Content.Parent = Main
+
+Content.Size = UDim2.new(1,-130,1,-20)
+Content.Position = UDim2.new(0,125,0,10)
+
+Content.BackgroundTransparency = 1
+
+-- QUEST INFO
+local QuestInfo = Instance.new("TextLabel")
+QuestInfo.Parent = Content
+
+QuestInfo.Size = UDim2.new(1,0,0,100)
+
+QuestInfo.BackgroundTransparency = 1
+
+QuestInfo.TextXAlignment = Enum.TextXAlignment.Left
+QuestInfo.TextYAlignment = Enum.TextYAlignment.Top
+
+QuestInfo.Font = Enum.Font.GothamBold
+QuestInfo.TextSize = 22
+
+QuestInfo.TextColor3 = Color3.new(1,1,1)
+
+-- LEVEL SYSTEM
+local function UpdateQuest()
+
+    local Level = 1
+
+    pcall(function()
+        Level = Player.Data.Level.Value
+    end)
+
+    local Text = ""
+
+    if Level >= 625 and Level <= 649 then
+
+        Text =
+[[LEVEL : ]]..Level..[[
+
+QUEST :
+Snow Trooper
+
+ISLAND :
+Ice Castle]]
+
+    elseif Level >= 650 and Level <= 699 then
+
+        Text =
+[[LEVEL : ]]..Level..[[
+
+QUEST :
+Lab Subordinate
+
+ISLAND :
+Hot & Cold]]
+
+    else
+
+        Text =
+[[LEVEL : ]]..Level..[[
+
+No quest data yet.]]
+
+    end
+
+    QuestInfo.Text = Text
+end
+
+UpdateQuest()
+
+-- UPDATE LOOP
+task.spawn(function()
+
+    while task.wait(3) do
+        pcall(UpdateQuest)
+    end
+
+end)
+
+-- TELEPORT BUTTON
+local TP = Instance.new("TextButton")
+TP.Parent = Content
+
+TP.Size = UDim2.new(0,220,0,50)
+TP.Position = UDim2.new(0,0,0,120)
+
+TP.Text = "TELEPORT TO QUEST"
+
+TP.Font = Enum.Font.GothamBlack
+TP.TextSize = 20
+
+TP.BackgroundColor3 = Color3.fromRGB(20,20,30)
+TP.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",TP).CornerRadius = UDim.new(0,14)
+
+-- TWEEN TELEPORT
+local function TweenTo(Position)
+
+    local HRP =
+        Character:WaitForChild("HumanoidRootPart")
+
+    local Tween = TweenService:Create(
+
+        HRP,
+
+        TweenInfo.new(
+            2,
+            Enum.EasingStyle.Linear
+        ),
+
+        {
+            CFrame = CFrame.new(Position)
+        }
+
+    )
+
+    Tween:Play()
+end
+
+TP.MouseButton1Click:Connect(function()
+
+    local Level = 1
+
+    pcall(function()
+        Level = Player.Data.Level.Value
+    end)
+
+    if Level >= 625 and Level <= 649 then
+
+        TweenTo(Vector3.new(
+            5350,
+            28,
+            -6825
+        ))
+
+    elseif Level >= 650 and Level <= 699 then
+
+        TweenTo(Vector3.new(
+            -5500,
+            15,
+            -5300
+        ))
+
+    end
+
+end)
+
+-- LOW GRAPHIC BUTTON
+local FPS = Instance.new("TextButton")
+FPS.Parent = Content
+
+FPS.Size = UDim2.new(0,220,0,50)
+FPS.Position = UDim2.new(0,0,0,190)
+
+FPS.Text = "LOW GRAPHICS"
+
+FPS.Font = Enum.Font.GothamBlack
+FPS.TextSize = 20
+
+FPS.BackgroundColor3 = Color3.fromRGB(20,20,30)
+FPS.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",FPS).CornerRadius = UDim.new(0,14)
+
+FPS.MouseButton1Click:Connect(function()
+
+    settings().Rendering.QualityLevel =
+        Enum.QualityLevel.Level01
+
+    for _,v in pairs(game:GetDescendants()) do
+
+        if v:IsA("ParticleEmitter")
+        or v:IsA("Trail")
+        or v:IsA("Beam") then
+
+            v.Enabled = false
+
+        end
+    end
+
+end)
+
+-- MUSIC BUTTON
+local Music = Instance.new("TextButton")
+Music.Parent = Content
+
+Music.Size = UDim2.new(0,220,0,50)
+Music.Position = UDim2.new(0,0,0,260)
+
+Music.Text = "PLAY MUSIC"
+
+Music.Font = Enum.Font.GothamBlack
+Music.TextSize = 20
+
+Music.BackgroundColor3 = Color3.fromRGB(20,20,30)
+Music.TextColor3 = Color3.new(1,1,1)
+
+Instance.new("UICorner",Music).CornerRadius = UDim.new(0,14)
+
+local Sound = Instance.new("Sound")
+Sound.Parent = workspace
+
+Sound.SoundId = "rbxassetid://1843529608"
+Sound.Volume = 2
+Sound.Looped = true
+
+Music.MouseButton1Click:Connect(function()
+
+    if Sound.IsPlaying then
+
+        Sound:Pause()
+        Music.Text = "PLAY MUSIC"
+
+    else
+
+        Sound:Play()
+        Music.Text = "STOP MUSIC"
+
+    end
+end)
+
+-- TOGGLE UI
+local Visible = true
+
+Open.MouseButton1Click:Connect(function()
+
+    Visible = not Visible
+
+    Main.Visible = Visible
+
+end)
+
+-- DRAG
+local UIS = game:GetService("UserInputService")
+
+local dragging
+local dragInput
+local dragStart
+local startPos
+
+local function Update(input)
+
+    local delta = input.Position - dragStart
+
+    Main.Position = UDim2.new(
+        startPos.X.Scale,
+        startPos.X.Offset + delta.X,
+        startPos.Y.Scale,
+        startPos.Y.Offset + delta.Y
+    )
+end
+
+Main.InputBegan:Connect(function(input)
+
+    if input.UserInputType ==
+        Enum.UserInputType.MouseButton1 then
+
+        dragging = true
+        dragStart = input.Position
+        startPos = Main.Position
+
+        input.Changed:Connect(function()
+
+            if input.UserInputState ==
+                Enum.UserInputState.End then
+
+                dragging = false
+
+            end
+        end)
+    end
+end)
+
+Main.InputChanged:Connect(function(input)
+
+    if input.UserInputType ==
+        Enum.UserInputType.MouseMovement then
+
+        dragInput = input
+
+    end
+end)
+
+UIS.InputChanged:Connect(function(input)
+
+    if input == dragInput and dragging then
+
+        Update(input)
+
+    end
+end)
+
+print(" TRZ HUB LOADED")
