@@ -1,0 +1,94 @@
+-- TRZ TSB CLEAN MODE
+
+print("TRZ CLEAN MODE ENABLED")
+
+-- REMOVE CURRENT EFFECTS
+for _,v in pairs(game:GetDescendants()) do
+
+    pcall(function()
+
+        -- REMOVE PARTICLES
+        if v:IsA("ParticleEmitter")
+        or v:IsA("Trail")
+        or v:IsA("Beam")
+        or v:IsA("Smoke")
+        or v:IsA("Fire")
+        or v:IsA("Sparkles") then
+
+            v.Enabled = false
+        end
+
+        -- REMOVE SOUNDS
+        if v:IsA("Sound") then
+
+            v.Volume = 0
+        end
+
+        -- REMOVE EXTRA ROCKS
+        if v:IsA("Part") then
+
+            local name = string.lower(v.Name)
+
+            if string.find(name,"rock")
+            or string.find(name,"debris")
+            or string.find(name,"effect")
+            or string.find(name,"crater") then
+
+                -- KEEP WALLS
+                if not string.find(name,"wall") then
+                    v:Destroy()
+                end
+            end
+        end
+
+    end)
+end
+
+-- REMOVE FUTURE EFFECTS
+game.DescendantAdded:Connect(function(v)
+
+    task.wait()
+
+    pcall(function()
+
+        -- EFFECTS
+        if v:IsA("ParticleEmitter")
+        or v:IsA("Trail")
+        or v:IsA("Beam")
+        or v:IsA("Smoke")
+        or v:IsA("Fire")
+        or v:IsA("Sparkles") then
+
+            v.Enabled = false
+        end
+
+        -- REMOVE MUSIC
+        if v:IsA("Sound") then
+
+            v.Volume = 0
+        end
+
+        -- REMOVE EXTRA ROCKS
+        if v:IsA("Part") then
+
+            local name = string.lower(v.Name)
+
+            if string.find(name,"rock")
+            or string.find(name,"debris")
+            or string.find(name,"effect")
+            or string.find(name,"crater") then
+
+                if not string.find(name,"wall") then
+                    v:Destroy()
+                end
+            end
+        end
+
+    end)
+end)
+
+print("Effects Removed")
+print("Ultimate Music Removed")
+print("Extra Rocks Removed")
+print("Animations Preserved")
+print("Lighting Preserved")
