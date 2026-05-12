@@ -1,0 +1,116 @@
+--// Load UI
+local Library = loadstring(game:HttpGet("https://pastefy.app/21Kp3vvz/raw"))()
+
+--// Window
+local Window = Library:CreateWindow({
+    Title = "hiruZ Hub",
+    Subtitle = "Banana Edition",
+    Image = "rbxassetid://128185233852701"
+})
+
+--// Config
+local Config = {
+    AutoFarm = false,
+    ItemFarm = false,
+    Speed = 50
+}
+
+--// Player
+local player = game.Players.LocalPlayer
+
+local function getRoot()
+    local char = player.Character or player.CharacterAdded:Wait()
+    return char:WaitForChild("HumanoidRootPart")
+end
+
+--// MAIN TAB
+local MainTab = Window:AddTab("Farm")
+
+local MainGroup = MainTab:AddLeftGroupbox("Farming")
+
+--// Toggle Auto Farm
+MainGroup:AddToggle("AutoFarm", {
+    Text = "Auto Farm",
+    Default = false,
+    Callback = function(v)
+        Config.AutoFarm = v
+        Library:Notify({
+            Title = "Auto Farm",
+            Description = v and "Enabled" or "Disabled",
+            Duration = 2
+        })
+    end
+})
+
+--// Item Farm
+MainGroup:AddToggle("ItemFarm", {
+    Text = "Item Farm",
+    Default = false,
+    Callback = function(v)
+        Config.ItemFarm = v
+    end
+})
+
+--// Slider Speed
+MainGroup:AddSlider("Speed", {
+    Text = "Farm Speed",
+    Min = 1,
+    Max = 100,
+    Default = 50,
+    Callback = function(v)
+        Config.Speed = v
+    end
+})
+
+--// MISC TAB
+local MiscTab = Window:AddTab("Misc")
+local MiscGroup = MiscTab:AddLeftGroupbox("Utilities")
+
+--// Button test
+MiscGroup:AddButton({
+    Text = "Print Status",
+    Func = function()
+        print("hiruZ Running...")
+    end
+})
+
+--// SIMPLE FARM LOOP (SAFE BASIC)
+task.spawn(function()
+    while task.wait(0.2) do
+        local root = getRoot()
+
+        -- Auto Farm (basic move)
+        if Config.AutoFarm then
+            for _,v in pairs(workspace:GetDescendants()) do
+                if v:IsA("Model") and v:FindFirstChild("Humanoid") then
+                    if v.Humanoid.Health > 0 then
+                        local hrp = v:FindFirstChild("HumanoidRootPart")
+                        if hrp then
+                            root.CFrame = hrp.CFrame * CFrame.new(0,10,0)
+                            break
+                        end
+                    end
+                end
+            end
+        end
+
+        -- Item Farm (basic)
+        if Config.ItemFarm then
+            for _,v in pairs(workspace:GetDescendants()) do
+                if string.find(v.Name,"Fruit") or string.find(v.Name,"Chest") then
+                    if v:IsA("BasePart") then
+                        root.CFrame = v.CFrame * CFrame.new(0,2,0)
+                        break
+                    end
+                end
+            end
+        end
+    end
+end)
+
+--// Notify Load
+Library:Notify({
+    Title = "hiruZ Loaded",
+    Description = "Banana UI Activated",
+    Duration = 3
+})
