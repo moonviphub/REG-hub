@@ -1,0 +1,92 @@
+-- TRZ Hub: Core Execution Framework
+-- Language: Lua (Roblox Luau)
+
+local TRZ_Core = {
+    Settings = {
+        AutoFarm = false,
+        SafeDistance = 5,
+        RefreshRate = 0.05
+    },
+    Services = {
+        Players = game:GetService("Players"),
+        Workspace = game:GetService("Workspace"),
+        RunService = game:GetService("RunService"),
+        VirtualUser = game:GetService("VirtualUser")
+    }
+}
+
+local LocalPlayer = TRZ_Core.Services.Players.LocalPlayer
+
+-- Function: Locate the most optimal target
+function TRZ_Core:GetTarget()
+    local closestEnemy = nil
+    local shortestDistance = math.huge
+    
+    local enemiesFolder = TRZ_Core.Services.Workspace:FindFirstChild("Enemies")
+    if not enemiesFolder then return nil end
+
+    for _, enemy in pairs(enemiesFolder:GetChildren()) do
+        if enemy:FindFirstChild("Humanoid") and enemy.Humanoid.Health > 0 then
+            local character = LocalPlayer.Character
+            if character and character:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("HumanoidRootPart") then
+                local distance = (character.HumanoidRootPart.Position - enemy.HumanoidRootPart.Position).Magnitude
+                if distance < shortestDistance then
+                    shortestDistance = distance
+                    closestEnemy = enemy
+                end
+            end
+        end
+    end
+    
+    return closestEnemy
+end
+
+-- Function: Position the player relative to the target
+function TRZ_Core:MoveTo(targetCFrame)
+    local character = LocalPlayer.Character
+    if character and character:FindFirstChild("HumanoidRootPart") then
+        character.HumanoidRootPart.CFrame = targetCFrame
+    end
+end
+
+-- Function: Execute simulated clicks for Fast Attack
+function TRZ_Core:Attack()
+    TRZ_Core.Services.VirtualUser:CaptureController()
+    TRZ_Core.Services.VirtualUser:ClickButton1(Vector2.new(851, 158))
+end
+
+-- Function: Equip current active weapon
+function TRZ_Core:EquipWeapon()
+    local character = LocalPlayer.Character
+    if character then
+        for _, tool in pairs(LocalPlayer.Backpack:GetChildren()) do
+            if tool:IsA("Tool") and (tool.ToolTip == "Melee" or tool.ToolTip == "Sword") then
+                character.Humanoid:EquipTool(tool)
+            end
+        end
+    end
+end
+
+-- Main Execution Loop
+task.spawn(function()
+    while task.wait(TRZ_Core.Settings.RefreshRate) do
+        if TRZ_Core.Settings.AutoFarm then
+            pcall(function()
+                local target = TRZ_Core:GetTarget()
+                
+                if target and target:FindFirstChild("HumanoidRootPart") then
+                    TRZ_Core:EquipWeapon()
+                    
+                    -- Calculate safe position behind the target
+                    local targetPos = target.HumanoidRootPart.CFrame * CFrame.new(0, 0, TRZ_Core.Settings.SafeDistance)
+                    
+                    TRZ_Core:MoveTo(targetPos)
+                    TRZ_Core:Attack()
+                end
+            end)
+        end
+    end
+end)
+
+-- To test the script, execute the following line in your console or toggle via UI:
+-- TRZ_Core.Settings.AutoFarm = true
